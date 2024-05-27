@@ -51,41 +51,6 @@ public class ProdutoController {
             return ResponseEntity.status(HttpStatus.OK).body(produto.get());
     }
 
-
-/*    @GetMapping("/comments/{momentId}")
-        public  ResponseEntity<List<Comment>> getCommentMomentId(@PathVariable @NonNull Integer momentId) {
-        return ResponseEntity.ok(commentsRepository.findAllCommentsMoments(momentId));
-    }
-
-*/
-    /*@CrossOrigin(origins = "*")
-    @PostMapping(path = "/produto/salvar", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> gravarDados(@ModelAttribute @NonNull ProdutoStorage produtoStorage) {
-        Produto produto = new Produto();
-        produto.setTitulo(produtoStorage.getTitulo());
-        produto.setDescricao(produtoStorage.getDescricao());
-        produto.setPreco(produtoStorage.getPreco());
-        if (produtoStorage.getArquivo() != null){
-            try {
-                produto.setFoto(produtoStorage.getArquivo().getBytes());
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            // Caso não setada uma foto, seta a padrão
-            StorageService storageService = new StorageService();
-            try {
-                produto.setFoto( storageService.gravaFotoPadrao() );
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-        return ResponseEntity.ok(produtoRepository.save(produto));
-    }*/
-
    // UTILIZAÇÃO DO TIPO RECORD JAVA
    @CrossOrigin(origins = "*")
    @PostMapping(path = "/produto/salvar", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -110,47 +75,7 @@ public class ProdutoController {
            }
        }
        return ResponseEntity.status(HttpStatus.CREATED).body(produtoRepository.save(produto));
-       
    }
-
-    // TODO ajustar código de atualização para utilizar RECORD
-    /*@CrossOrigin(origins = "*")
-    @PutMapping(path = "/produto/editar/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> alteraDados(@PathVariable @NonNull Integer id, @ModelAttribute @NonNull ProdutoStorage produtoStorage) {
-        Produto produto = new Produto();
-        produto.setId(id);
-        produto.setTitulo(produtoStorage.getTitulo());
-        produto.setDescricao(produtoStorage.getDescricao());
-        produto.setPreco(produtoStorage.getPreco());*/
-        /* Verifica se a imagem foi alterada e se não foi setada, caso não setada adiciona uma foto padrão.
-           Caso alterada procura e seta a anterior.
-        */ 
-       /* if (produtoStorage.getArquivo() != null){
-            try {
-                produto.setFoto(produtoStorage.getArquivo().getBytes());
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            byte[] fotoAnterior = produtoRepository.findById(id).get().getFoto();
-            if (fotoAnterior == null){
-                // Se não existir foto anterior seta a padrão
-                StorageService storageService = new StorageService();
-                try {
-                    produto.setFoto( storageService.gravaFotoPadrao() );
-                } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else {
-                // Se existir foto anterior seta a mesma 
-                produto.setFoto( fotoAnterior );
-            }
-        }
-        
-        return ResponseEntity.ok(produtoRepository.save(produto));
-    }*/
 
     // UTILIZAÇÃO DO TIPO RECORD JAVA
     @CrossOrigin(origins = "*")
@@ -187,7 +112,6 @@ public class ProdutoController {
                 produto.setFoto(produtoAnterior.get().getFoto());
             }
         }
-
         return ResponseEntity.status(HttpStatus.OK).body(produtoRepository.save(produto));
     }
 

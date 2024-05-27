@@ -1,6 +1,6 @@
 # API REST Spring Boot com hateoas
 ## Descrição
-API que implementa crud de loja seguindo as boas práticas de desenvolvimento, **hateoas** e ** banco de dados SQLite** para interligar requisições.
+API que implementa crud de loja seguindo as boas práticas de desenvolvimento, **hateoas** e **banco de dados SQLite** para interligar requisições.
 **OBS: Em desenvolvimento**.
 
 ## Description
