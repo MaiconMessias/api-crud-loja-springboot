@@ -4,7 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import br.com.crudloja.dto.ProdutoDTO;
+import br.com.crudloja.service.ProdutoService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +20,7 @@ import br.com.crudloja.model.Produto;
 import br.com.crudloja.repositorio.ProdutoRepository;
 import br.com.crudloja.util.StorageService;
 import lombok.NonNull;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.modelmapper.ModelMapper;
 
 @RestController
 @RequestMapping("api")
@@ -28,18 +30,16 @@ public class ProdutoController {
     @Autowired
     private ProdutoRepository produtoRepository;
 
-    @GetMapping("/listaproduto")
-    public  ResponseEntity<List<Produto>> getProdutos() {
-        List<Produto> productList = (List<Produto>) produtoRepository.findAll();
-        if (!productList.isEmpty()){
-            for (Produto produto : productList) {
-                Integer id = produto.getId();
-                // Hateaos - cria o campo links com dados da requisição especificada
-                produto.add(linkTo( methodOn(ProdutoController.class).getProduto(id) ).withSelfRel());
-            }
-        }
+    @Autowired
+    private ModelMapper mapper;
 
-        return ResponseEntity.status(HttpStatus.OK).body(productList);
+    @Autowired
+    private ProdutoService produtoService;
+
+    @GetMapping("/listaproduto")
+    public  ResponseEntity<List<ProdutoDTO>> getProdutos() {
+        return ResponseEntity.ok().body(produtoService.findAll().stream().map(x -> mapper.map(x, ProdutoDTO.class))
+                                                      .collect(Collectors.toList()));
     }
 
     @GetMapping("/produto/{id}")
