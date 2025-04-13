@@ -2,6 +2,7 @@ package br.com.crudloja.controller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,12 +22,14 @@ import br.com.crudloja.repositorio.ProdutoRepository;
 import br.com.crudloja.util.StorageService;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("api")
 @CrossOrigin(origins = "*")
 public class ProdutoController {
 
+    public static final String ID = "/{id}";
     @Autowired
     private ProdutoRepository produtoRepository;
 
@@ -43,85 +46,75 @@ public class ProdutoController {
     }
 
     @GetMapping("/produto/{id}")
-        public  ResponseEntity<Object> getProduto(@PathVariable @NonNull Integer id) {
-            Optional<Produto> produto = produtoRepository.findById(id);
-            if (produto.isEmpty()){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(produto.get());
+        public  ResponseEntity<ProdutoDTO> getProduto(@PathVariable @NonNull Integer id) {
+            return ResponseEntity.ok().body(mapper.map(produtoService.findById(id), ProdutoDTO.class));
     }
 
    // UTILIZAÇÃO DO TIPO RECORD JAVA
    @CrossOrigin(origins = "*")
    @PostMapping(path = "/produto/salvar", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-   public ResponseEntity<Produto> gravarDados(@ModelAttribute @NonNull ProdutoRecordDto produtoRecordDto) {
-       var produto = new Produto();
-       BeanUtils.copyProperties(produtoRecordDto, produto);
-       if (produtoRecordDto.foto() != null){
-           try {
-               produto.setFoto(produtoRecordDto.foto().getBytes());
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
-       } else {
+   public ResponseEntity<ProdutoDTO> gravarDados(@ModelAttribute @NonNull ProdutoDTO produtoDto) throws IOException {
+       if (produtoDto.getFotoDto() == null){
            // Caso não setada uma foto, seta a padrão
            StorageService storageService = new StorageService();
            try {
-               produto.setFoto( storageService.gravaFotoPadrao() );
+               produtoDto.setFoto( storageService.gravaFotoPadrao() );
            } catch (FileNotFoundException e) {
                // TODO Auto-generated catch block
                e.printStackTrace();
            }
        }
-       return ResponseEntity.status(HttpStatus.CREATED).body(produtoRepository.save(produto));
+       // seta a foto no campo certo
+       produtoDto.setFoto(produtoDto.getFotoDto().getBytes());
+       URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path(ID)
+               .buildAndExpand(produtoService.create(produtoDto).getId()).toUri();
+       return ResponseEntity.created(uri).build();
    }
 
     // UTILIZAÇÃO DO TIPO RECORD JAVA
     @CrossOrigin(origins = "*")
     @PutMapping(path = "/produto/editar/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Produto> alteraDados(@PathVariable @NonNull Integer id, @ModelAttribute @NonNull ProdutoRecordDto produtoRecordDto) {
-        var produto = new Produto();
-        BeanUtils.copyProperties(produtoRecordDto, produto);
-        // informa o id a ser alterado
-        produto.setId(id);
+    public ResponseEntity<ProdutoDTO> alteraDados(@PathVariable @NonNull Integer id,
+                                                  @ModelAttribute @NonNull ProdutoDTO produtoDTO) {
 
         // seta a imagem escolhida
-        if (produtoRecordDto.foto() != null){
+        if (produtoDTO.getFotoDto() != null){
             try {
-                produto.setFoto(produtoRecordDto.foto().getBytes());
+                produtoDTO.setFoto(produtoDTO.getFotoDto().getBytes());
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         // caso não tenha sido setada uma foto
         } else {
-            var produtoAnterior = produtoRepository.findById(id);
+            var produtoAnterior = produtoService.findById(id);
             // seta uma imagem padrão caso não exista foto cadastrada
-            if (produtoAnterior.isEmpty()) {
+            if (produtoAnterior == null) {
                 // Caso não setada uma foto, seta a padrão
                 StorageService storageService = new StorageService();
                 try {
-                    produto.setFoto(storageService.gravaFotoPadrao());
+                    produtoDTO.setFoto(storageService.gravaFotoPadrao());
                 } catch (FileNotFoundException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             } else {
                 // Caso já tenha sido cadastrada uma foto anterior
-                produto.setFoto(produtoAnterior.get().getFoto());
+                produtoDTO.setFoto(produtoAnterior.getFoto());
             }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(produtoRepository.save(produto));
+        
+        return ResponseEntity.ok().body(mapper.map(produtoService.update(produtoDTO), ProdutoDTO.class));
     }
 
     @DeleteMapping("/produto/delete/{id}")
-        public  ResponseEntity<?> deleteMoment(@PathVariable @NonNull Integer id) {
-        var produtoTemp = produtoRepository.findById(id);
-        if (produtoTemp.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");
-        produtoRepository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Produto excluido com sucesso !");
+        public  ResponseEntity<ProdutoDTO> deleteMoment(@PathVariable @NonNull Integer id) {
+
+        // tratar Exceção com criação de classe de exceção
+        if (produtoService.findById(id) == null)
+            return null;
+        produtoService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
