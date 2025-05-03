@@ -17,7 +17,7 @@ import org.springframework.hateoas.RepresentationModel;
 @AllArgsConstructor
 @Builder
 @Table(name = "produto")
-public class Produto extends RepresentationModel<Produto> {
+public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Integer id;

@@ -1,4 +1,4 @@
-package br.com.crudloja.service;
+package br.com.crudloja.service.iservice;
 
 import br.com.crudloja.dto.ProdutoDTO;
 import br.com.crudloja.model.Produto;
@@ -11,4 +11,5 @@ public interface ProdutoService {
     Produto create(ProdutoDTO produtoDTO);
     Produto update(ProdutoDTO produtoDTO);
     void delete(Integer id);
+    List<Produto> findAll(Integer pagina, Integer itens);
 }

@@ -3,9 +3,10 @@ package br.com.crudloja.service.impl;
 import br.com.crudloja.dto.ProdutoDTO;
 import br.com.crudloja.model.Produto;
 import br.com.crudloja.repositorio.ProdutoRepository;
-import br.com.crudloja.service.ProdutoService;
+import br.com.crudloja.service.iservice.ProdutoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -48,5 +49,10 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Override
     public void delete(Integer id) {
         produtoRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Produto> findAll(Integer pagina, Integer itens) {
+        return produtoRepository.findAll(PageRequest.of( pagina, itens ));
     }
 }

@@ -4,20 +4,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import br.com.crudloja.dto.ProdutoDTO;
-import br.com.crudloja.service.ProdutoService;
-import org.springframework.beans.BeanUtils;
+import br.com.crudloja.service.iservice.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.crudloja.dto.ProdutoRecordDto;
-import br.com.crudloja.model.Produto;
 import br.com.crudloja.repositorio.ProdutoRepository;
 import br.com.crudloja.util.StorageService;
 import lombok.NonNull;
@@ -115,6 +110,15 @@ public class ProdutoController {
             return null;
         produtoService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Requisições de paginação
+    @GetMapping("/listaprodutopaginacao/{pagina}/{itens}")
+    public  ResponseEntity<List<ProdutoDTO>> getListaProdutoPaginacao(@PathVariable @NonNull Integer pagina,
+                                                                      @PathVariable @NonNull Integer itens) {
+        return ResponseEntity.ok().body(produtoService.findAll(pagina, itens )
+                                       .stream().map(x -> mapper.map(x, ProdutoDTO.class))
+                                       .collect(Collectors.toList()));
     }
 
 }
