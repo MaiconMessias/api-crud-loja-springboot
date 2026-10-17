@@ -8,15 +8,16 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-@Table(name = "produto")
+@NoArgsConstructor  // Gera o construtor vazio (exigido por frameworks como Hibernate/Jackson)
+@AllArgsConstructor // Gera o construtor com todos os campos (exigido pelo @Builder)
+@EqualsAndHashCode(callSuper = false) // Remove o aviso de atenção do @Data@Table(name = "produto")
 public class Produto extends RepresentationModel<Produto> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
