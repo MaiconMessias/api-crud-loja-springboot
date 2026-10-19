@@ -17,5 +17,5 @@ public class CrudlojaApplication  implements CommandLineRunner  {
 	public void run(String... args) throws Exception{
 		System.out.println("Fim");
 	}
-
+	// executar o comado mvn clean compile para o projeto rodar
 }
